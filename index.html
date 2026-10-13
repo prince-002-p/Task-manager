@@ -1,28 +1,189 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Task Manager Pro</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="description" content="A clean, responsive task manager for organizing everyday work.">
+  <title>Task Manager Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
+  <main class="app-shell">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">YOUR PERSONAL WORKSPACE</p>
+        <h1>Task Manager <span class="title-accent">Pro</span></h1>
+        <p class="subtitle">Make a plan. Focus on what matters. Get it done.</p>
+      </div>
+      <button id="themeToggle" class="icon-button theme-toggle" type="button" aria-label="Switch to dark mode" title="Toggle theme">☾</button>
+    </header>
 
-<div class="app">
-    <h2>Task Manager</h2>
+    <section class="stats-grid" aria-label="Task summary">
+      <article class="stat-card">
+        <span class="stat-label">Total tasks</span>
+        <strong id="totalCount" class="stat-number">0</strong>
+        <span class="stat-footnote">In your workspace</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">To do</span>
+        <strong id="pendingCount" class="stat-number">0</strong>
+        <span class="stat-footnote">Still on your list</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Completed</span>
+        <strong id="completedCount" class="stat-number">0</strong>
+        <span class="stat-footnote">Progress made</span>
+      </article>
+    </section>
 
-    <div class="input-box">
-        <input type="text" id="taskInput" placeholder="Add a new task...">
-        <button class="add-btn" onclick="addTask()">Add</button>
-    </div>
+    <section class="progress-card" aria-label="Overall completion progress">
+      <div class="progress-heading">
+        <div>
+          <h2>Your progress</h2>
+          <p id="progressMessage">Every completed task counts.</p>
+        </div>
+        <strong id="progressPercent">0%</strong>
+      </div>
+      <div class="progress-track" role="progressbar" aria-label="Tasks completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar">
+        <span id="progressFill" class="progress-fill"></span>
+      </div>
+    </section>
 
-    <div class="filters">
-        <button onclick="filterTasks('all')">All</button>
-        <button onclick="filterTasks('completed')">Completed</button>
-        <button onclick="filterTasks('pending')">Pending</button>
-    </div>
+    <section class="workspace-card" aria-labelledby="createHeading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">STAY ORGANIZED</p>
+          <h2 id="createHeading">Add a task</h2>
+        </div>
+      </div>
+      <form id="taskForm" class="task-form">
+        <div class="field field-task">
+          <label for="taskInput">Task name <span aria-hidden="true">*</span></label>
+          <input id="taskInput" name="task" type="text" maxlength="160" placeholder="e.g. Finish Java assignment" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label for="taskCategory">Category</label>
+          <select id="taskCategory" name="category">
+            <option value="Personal">Personal</option>
+            <option value="Study">Study</option>
+            <option value="Work">Work</option>
+            <option value="Health">Health</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="taskPriority">Priority</label>
+          <select id="taskPriority" name="priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="taskDueDate">Due date</label>
+          <input id="taskDueDate" name="dueDate" type="date">
+        </div>
+        <button class="button button-primary add-button" type="submit"><span aria-hidden="true">＋</span> Add task</button>
+      </form>
+      <p id="formError" class="form-error" role="alert" hidden></p>
+    </section>
 
-    <ul id="taskList"></ul>
-</div>
+    <section class="workspace-card task-workspace" aria-labelledby="tasksHeading">
+      <div class="task-toolbar">
+        <div>
+          <p class="eyebrow">YOUR DAY, UNDER CONTROL</p>
+          <h2 id="tasksHeading">Your tasks <span id="visibleCount" class="count-pill">0</span></h2>
+        </div>
+        <button id="clearCompleted" class="button button-quiet" type="button">Clear completed</button>
+      </div>
 
-<script src="script.js"></script>
+      <div class="control-row">
+        <div class="search-field">
+          <span aria-hidden="true">⌕</span>
+          <label class="visually-hidden" for="searchInput">Search tasks</label>
+          <input id="searchInput" type="search" placeholder="Search tasks..." autocomplete="off">
+        </div>
+        <div class="sort-field">
+          <label class="visually-hidden" for="sortSelect">Sort tasks</label>
+          <select id="sortSelect">
+            <option value="created">Recently added</option>
+            <option value="dueDate">Due date</option>
+            <option value="priority">Priority</option>
+            <option value="alphabetical">Alphabetical</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-tabs" role="group" aria-label="Filter tasks">
+        <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter-button" type="button" data-filter="pending" aria-pressed="false">To do</button>
+        <button class="filter-button" type="button" data-filter="completed" aria-pressed="false">Completed</button>
+      </div>
+
+      <ul id="taskList" class="task-list" aria-label="Tasks"></ul>
+      <div id="emptyState" class="empty-state">
+        <div class="empty-icon" aria-hidden="true">✓</div>
+        <h3 id="emptyTitle">A fresh start</h3>
+        <p id="emptyDescription">Add your first task above and make today count.</p>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <span>Built to help you focus.</span>
+      <span>Your tasks are saved in this browser.</span>
+    </footer>
+  </main>
+
+  <dialog id="editDialog" class="edit-dialog" aria-labelledby="editDialogTitle">
+    <form id="editForm" method="dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">MAKE A CHANGE</p>
+          <h2 id="editDialogTitle">Edit task</h2>
+        </div>
+        <button id="closeEdit" class="icon-button" type="button" aria-label="Close edit dialog">×</button>
+      </div>
+      <input id="editTaskId" type="hidden">
+      <div class="field">
+        <label for="editTaskInput">Task name</label>
+        <input id="editTaskInput" type="text" maxlength="160" required>
+      </div>
+      <div class="field">
+        <label for="editCategory">Category</label>
+        <select id="editCategory">
+          <option value="Personal">Personal</option>
+          <option value="Study">Study</option>
+          <option value="Work">Work</option>
+          <option value="Health">Health</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="editPriority">Priority</label>
+        <select id="editPriority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="editDueDate">Due date</label>
+        <input id="editDueDate" type="date">
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelEdit" class="button button-quiet" type="button">Cancel</button>
+        <button class="button button-primary" type="submit">Save changes</button>
+      </div>
+      <p id="editError" class="form-error" role="alert" hidden></p>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span id="toastMessage"></span>
+    <button id="undoDelete" type="button" hidden>Undo</button>
+    <button id="dismissToast" class="toast-dismiss" type="button" aria-label="Dismiss notification">×</button>
+  </div>
 </body>
 </html>
