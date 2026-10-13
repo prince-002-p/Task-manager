@@ -95,7 +95,7 @@
       return true;
     } catch (error) {
       console.error("Could not save tasks:", error);
-      showToast("Changes are visible, but this browser could not save them.");
+      window.setTimeout(() => showToast("Changes are visible, but this browser could not save them."), 0);
       return false;
     }
   }
